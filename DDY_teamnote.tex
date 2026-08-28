@@ -2,9 +2,9 @@
 
 \usepackage[compact]{titlesec}
 \titlespacing*{\section}
-{0pt}{0px plus 1px minus 0px}{-2px plus 0px minus 0px}
+{0pt}{0pt plus 1pt minus 0pt}{-2pt plus 0pt minus 0pt}
 \titlespacing*{\subsection}
-{0pt}{0px plus 1px minus 0px}{0px plus 3px minus 3px}
+{0pt}{0pt plus 1pt minus 0pt}{0pt plus 3pt minus 3pt}
 
 \setlength{\columnseprule}{0.4pt}
 \pagenumbering{arabic}
@@ -17,7 +17,8 @@
 \usepackage{ulem}
 \usepackage{amssymb}
 \usepackage{minted}
-\usepackage{color, hyperref}
+\usepackage{color}
+\usepackage[hidelinks]{hyperref}
 \usepackage{indentfirst}
 \usepackage{enumitem}
 
@@ -35,7 +36,7 @@
 
 \title{Team Note of DDY}
 \author{duram21, djs100201, yunnyworld}
-\date{Compiled on \today}
+\date{Compiled on August 29, 2026}
 
 \newcommand{\revised}{Should be \textcolor{red}{\textbf{revised}}.}
 \newcommand{\tested}{Should be \textcolor{red}{\textbf{tested}}.}
@@ -44,8 +45,8 @@
 
 \begin{document}
 {
-	\Large
-	\maketitle
+    \Large
+    \maketitle
     \tableofcontents
 }
 \thispagestyle{fancy}
@@ -64,25 +65,25 @@ Segment Tree
 */
 
 template<typename T> struct seg {
-	ll n; //size
-	T id; //identity
-	vector<T> t;
-	T(*merge)(T, T);
-	seg(ll N, T ID, T(*_merge)(T, T)): n(N), id(ID), merge(_merge) { t.resize(N<<1, id); }					
-	void update(ll p, T val) {
-		for (t[p+=n] = val; p > 1; p >>= 1) {//if you want change value, t[p+=n] = newval
-			if(p&1) t[p>>1] = merge(t[p^1], t[p]);
-			else t[p>>1] = merge(t[p], t[p^1]);
-		}
-	}
-	T query(ll l, ll r) {//query on interval [l, r)
-		T lret=id, rret=id;
-		for(l += n, r += n; l < r; l >>= 1, r >>= 1) {
-			if(l&1) lret = merge(lret, t[l++]);
-			if(r&1) rret = merge(t[--r], rret);
-		}
-		return merge(lret, rret);
-	}
+    ll n; //size
+    T id; //identity
+    vector<T> t;
+    T(*merge)(T, T);
+    seg(ll N, T ID, T(*_merge)(T, T)): n(N), id(ID), merge(_merge) { t.resize(N<<1, id); }                  
+    void update(ll p, T val) {
+        for (t[p+=n] = val; p > 1; p >>= 1) {//if you want change value, t[p+=n] = newval
+            if(p&1) t[p>>1] = merge(t[p^1], t[p]);
+            else t[p>>1] = merge(t[p], t[p^1]);
+        }
+    }
+    T query(ll l, ll r) {//query on interval [l, r)
+        T lret=id, rret=id;
+        for(l += n, r += n; l < r; l >>= 1, r >>= 1) {
+            if(l&1) lret = merge(lret, t[l++]);
+            if(r&1) rret = merge(t[--r], rret);
+        }
+        return merge(lret, rret);
+    }
 };
 \end{minted}
 \subsubsection {Lazy Propagation}
@@ -334,35 +335,35 @@ check! find_by_order(p) == x
 \begin{minted}{cpp}
 //max query.. if you want min query, use it with m -> -m, k -> -k, query(q) -> -query(q).
 struct Line {
-	mutable ll k, m, p;
-	bool operator<(const Line& o) const { return k < o.k; }
-	bool operator<(ll x) const { return p < x; }
+    mutable ll k, m, p;
+    bool operator<(const Line& o) const { return k < o.k; }
+    bool operator<(ll x) const { return p < x; }
 };
 struct LineContainer : multiset<Line, less<>> {
-	// (for doubles, use inf = 1/.0, div(a,b) = a/b)
-	// (for doubles, const double inf = 1/.0;)
-	// (for doubles, ll -> double)
-	static const ll inf = LLONG_MAX;
-	ll div(ll a, ll b) { // floored division
-		return a / b - ((a ^ b) < 0 && a % b); }
-	bool isect(iterator x, iterator y) {
-		if (y == end()) return x->p = inf, 0;
-		if (x->k == y->k) x->p = x->m > y->m ? inf : -inf;
-		else x->p = div(y->m - x->m, x->k - y->k);
-		return x->p >= y->p;
-	}
-	void add(ll k, ll m) {
-		auto z = insert({k, m, 0}), y = z++, x = y;
-		while (isect(y, z)) z = erase(z);
-		if (x != begin() && isect(--x, y)) isect(x, y = erase(y));
-		while ((y = x) != begin() && (--x)->p >= y->p)
-			isect(x, erase(y));
-	}
-	ll query(ll x) {
-		assert(!empty());
-		auto l = *lower_bound(x);
-		return l.k * x + l.m;
-	}
+    // (for doubles, use inf = 1/.0, div(a,b) = a/b)
+    // (for doubles, const double inf = 1/.0;)
+    // (for doubles, ll -> double)
+    static const ll inf = LLONG_MAX;
+    ll div(ll a, ll b) { // floored division
+        return a / b - ((a ^ b) < 0 && a % b); }
+    bool isect(iterator x, iterator y) {
+        if (y == end()) return x->p = inf, 0;
+        if (x->k == y->k) x->p = x->m > y->m ? inf : -inf;
+        else x->p = div(y->m - x->m, x->k - y->k);
+        return x->p >= y->p;
+    }
+    void add(ll k, ll m) {
+        auto z = insert({k, m, 0}), y = z++, x = y;
+        while (isect(y, z)) z = erase(z);
+        if (x != begin() && isect(--x, y)) isect(x, y = erase(y));
+        while ((y = x) != begin() && (--x)->p >= y->p)
+            isect(x, erase(y));
+    }
+    ll query(ll x) {
+        assert(!empty());
+        auto l = *lower_bound(x);
+        return l.k * x + l.m;
+    }
 };
 \end{minted}
 \newpage
@@ -407,8 +408,8 @@ ll ccw(pt a, pt b, pt c) {
 
 //외심 (실수) djs
 pt get_circle_center(pt a,pt b,pt c){
-	pt aa=b-a,bb=c-a;
-	auto c1 = aa*aa * 0.5, c2 = bb*bb * 0.5;
+    pt aa=b-a,bb=c-a;
+    auto c1 = aa*aa * 0.5, c2 = bb*bb * 0.5;
     auto d = aa / bb;
     auto x = a.x + (c1 * bb.y - c2 * aa.y) / d;
     auto y = a.y + (c2 * aa.x - c1 * bb.x) / d;
@@ -839,37 +840,37 @@ vector<int> DMST(int n, int r, const vector<edge> & E){
 vector<P>v[n_];
 vector<ll>checked;
 void dfs(ll x){
-	while(1){
-		while(v[x].size() && checked[v[x].back().second])v[x].pop_back();
-		//쓴거 다 지우기
-		if(v[x].empty())break;
-		auto [a,b]=v[x].back();
-		v[x].pop_back();
-		checked[b]=true;
-		dfs(a);
-	}
-	cout<<x<<' ';
+    while(1){
+        while(v[x].size() && checked[v[x].back().second])v[x].pop_back();
+        //쓴거 다 지우기
+        if(v[x].empty())break;
+        auto [a,b]=v[x].back();
+        v[x].pop_back();
+        checked[b]=true;
+        dfs(a);
+    }
+    cout<<x<<' ';
 }
 void solve(){
-	cin>>n;
-	for(int i=1;i<=n;i++)
-		for(int j=1;j<=n;j++){
-			cin>>a;
-			if(i<j)continue;
-			for(int k=0;k<a;k++){
-				v[i].push_back({j,base});
-				v[j].push_back({i,base});
-				base++;
-			}
-		}
-	checked.resize(base+1);
-	for(int i=1;i<=n;i++){
-		if(v[i].size()%2){
-			cout<<"-1";
-			return;
-		}
-	}
-	dfs(1);
+    cin>>n;
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++){
+            cin>>a;
+            if(i<j)continue;
+            for(int k=0;k<a;k++){
+                v[i].push_back({j,base});
+                v[j].push_back({i,base});
+                base++;
+            }
+        }
+    checked.resize(base+1);
+    for(int i=1;i<=n;i++){
+        if(v[i].size()%2){
+            cout<<"-1";
+            return;
+        }
+    }
+    dfs(1);
 }
 
 \end{minted}
@@ -996,35 +997,35 @@ void solve(){
 //단절선
 vector<pair<ll, ll>>ans;
 ll dfs(ll x, ll par) {
-	A[x] = ++d;
-	ll ret = A[x];
-	for (ll nxt : v[x]) {
-		if (nxt == par)continue;
-		if (!A[nxt]) {
-			a = dfs(nxt, x);
-			if (a > A[x])
-				ans.push_back({ min(x,nxt),max(x,nxt) });
-			ret = min(ret, a);
-		}
-		else ret = min(ret, A[nxt]);
-	}
-	return ret;
+    A[x] = ++d;
+    ll ret = A[x];
+    for (ll nxt : v[x]) {
+        if (nxt == par)continue;
+        if (!A[nxt]) {
+            a = dfs(nxt, x);
+            if (a > A[x])
+                ans.push_back({ min(x,nxt),max(x,nxt) });
+            ret = min(ret, a);
+        }
+        else ret = min(ret, A[nxt]);
+    }
+    return ret;
 }
 int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0), cout.tie(0);
-	cin >> V >> E;
-	for (int i = 0; i < E; i++) {
-		cin >> a >> b;
-		v[a].push_back(b);
-		v[b].push_back(a);
-	}
-	dfs(1, 0);
-	sort(ans.begin(), ans.end());
-	cout << ans.size() << '\n';
-	for (int i = 0; i < ans.size(); i++) {
-		cout << ans[i].first << ' ' << ans[i].second << '\n';
-	}
+    ios_base::sync_with_stdio(0);
+    cin.tie(0), cout.tie(0);
+    cin >> V >> E;
+    for (int i = 0; i < E; i++) {
+        cin >> a >> b;
+        v[a].push_back(b);
+        v[b].push_back(a);
+    }
+    dfs(1, 0);
+    sort(ans.begin(), ans.end());
+    cout << ans.size() << '\n';
+    for (int i = 0; i < ans.size(); i++) {
+        cout << ans[i].first << ' ' << ans[i].second << '\n';
+    }
 
 }
 
@@ -1132,8 +1133,8 @@ ll dfs(ll x) {
     return parent;
 }
 ll rev(ll x) { //get not in 2-sat
-	if (x <= n) return x + n;
-	return x - n;
+    if (x <= n) return x + n;
+    return x - n;
 }
 void solve() {
     cin >> n >> m;
@@ -1146,20 +1147,20 @@ void solve() {
     //2-sat start
     //(a or b) -> !a->b, !b->a
     for (ll i = 1; i <= n; i++) {
-		if (sn[i] == sn[i + n]) {//same SCC
-			cout << 0 << endl;
-			return;
-		}
-	}
-	cout << 1 << endl;
-	reverse(SCC.begin(), SCC.end()); //topology sort
-	for (auto vec : SCC) {
-		for (auto now : vec) {//Starting from the front, fill in 0 first.
-			if (ans[now]) continue;
-			ans[now] = 0;
-			ans[rev(now)] = 1;
-		}
-	}    
+        if (sn[i] == sn[i + n]) {//same SCC
+            cout << 0 << endl;
+            return;
+        }
+    }
+    cout << 1 << endl;
+    reverse(SCC.begin(), SCC.end()); //topology sort
+    for (auto vec : SCC) {
+        for (auto now : vec) {//Starting from the front, fill in 0 first.
+            if (ans[now]) continue;
+            ans[now] = 0;
+            ans[rev(now)] = 1;
+        }
+    }    
 }
 \end{minted}
 \subsection {O(1) LCA with O(NlogN) preprocessing}
@@ -1252,43 +1253,43 @@ vector<ll> convolution(vector<ll> a, vector<ll> b) {
 \begin{minted}{cpp}
     //ax+by=1의 값을 x,y에 저장해준다. gcd(a,b)를 return 해준다.
 ll ex_gcd(ll a, ll b, ll& x, ll& y) {
-	if (!b) {
-		x = 1, y = 0;
-		return a;
-	}
-	ll ret = ex_gcd(b, a % b, x, y);
-	ll temp = y;
-	y = x - (a / b) * y;
-	x = temp;
-	if (x <= 0) {
-		x += b;
-		y -= a;
-	}
-	return ret;
+    if (!b) {
+        x = 1, y = 0;
+        return a;
+    }
+    ll ret = ex_gcd(b, a % b, x, y);
+    ll temp = y;
+    y = x - (a / b) * y;
+    x = temp;
+    if (x <= 0) {
+        x += b;
+        y -= a;
+    }
+    return ret;
 }
 ll crt(vector<ll>&A, vector<ll>&B) {
-	//b로 나눴을 때, 나머지가 a
-	ll a1 = A[0], b1 = B[0];
-	for (int i = 1; i < A.size(); i++) {
-		ll x,  y, a2 = A[i], b2 = B[i], G = gcd(b1, b2);
-		if ((abs(a2 - a1)) % G)return -1;
-		ex_gcd(b1 / G, b2 / G ,x, y);
-		x *=(a2 - a1) / G;
-		x %= (b2 / G);
-		x = (x + b2 / G) % (b2 / G);
-		ll t = b1 * b2 / G;
-		a1 = b1 * x + a1;
-		a1 %= t;
-		b1 = t;
-	}
-	return a1;
+    //b로 나눴을 때, 나머지가 a
+    ll a1 = A[0], b1 = B[0];
+    for (int i = 1; i < A.size(); i++) {
+        ll x,  y, a2 = A[i], b2 = B[i], G = gcd(b1, b2);
+        if ((abs(a2 - a1)) % G)return -1;
+        ex_gcd(b1 / G, b2 / G ,x, y);
+        x *=(a2 - a1) / G;
+        x %= (b2 / G);
+        x = (x + b2 / G) % (b2 / G);
+        ll t = b1 * b2 / G;
+        a1 = b1 * x + a1;
+        a1 %= t;
+        b1 = t;
+    }
+    return a1;
 }
 void solve() {
-	n = 3;
-	vector<ll>A(n), B(n);
-	for (int i = 0; i < n; i++)cin >> B[i];
-	for (int i = 0; i < n; i++)cin >> A[i];
-	cout << crt(A, B) << '\n';
+    n = 3;
+    vector<ll>A(n), B(n);
+    for (int i = 0; i < n; i++)cin >> B[i];
+    for (int i = 0; i < n; i++)cin >> A[i];
+    cout << crt(A, B) << '\n';
 }
 \end{minted}
 \subsection{FFT}
@@ -1298,63 +1299,63 @@ void solve() {
 // ── Formal power series 기본(수렴 가정 불필요; 해석적 의미로는 |x|<1) ──
 // [기하급수 Geometric series]
 /*
-1/(1 - x) = Σ_{n≥0} x^n
-1/(1 - a x) = Σ_{n≥0} a^n x^n
-(1 - x)^{-m} = Σ_{n≥0} C(n+m-1, m-1) x^n
+1/(1 - x) = Σ_{n>=0} x^n
+1/(1 - a x) = Σ_{n>=0} a^n x^n
+(1 - x)^{-m} = Σ_{n>=0} C(n+m-1, m-1) x^n
 [x^n] (1 - a x)^{-m} = a^n * C(n+m-1, m-1)
 (1 - x^L)/(1 - x) = 1 + x + ... + x^{L-1}
 */
 
 // [로그/지수 Log/Exp]
 /*
--log(1 - x) = Σ_{n≥1} x^n / n
-log(1/(1 - x)) = Σ_{n≥1} x^n / n            // 같은 식
--log(1 - x^k) = Σ_{r≥1} x^{kr} / r          // t = x^k 치환
-exp(x) = Σ_{n≥0} x^n / n!
-exp(ax) = Σ_{n≥0} a^n x^n / n!
-log(1 + U) = Σ_{m≥1} (-1)^{m+1} U^m / m     // 상수항(U(0)) = 0일 때 형식적 정의
+-log(1 - x) = Σ_{n>=1} x^n / n
+log(1/(1 - x)) = Σ_{n>=1} x^n / n            // 같은 식
+-log(1 - x^k) = Σ_{r>=1} x^{kr} / r          // t = x^k 치환
+exp(x) = Σ_{n>=0} x^n / n!
+exp(ax) = Σ_{n>=0} a^n x^n / n!
+log(1 + U) = Σ_{m>=1} (-1)^{m+1} U^m / m     // 상수항(U(0)) = 0일 때 형식적 정의
 */
 
 #define double long double 
 typedef complex<double> base;
 void fft(vector <base>& a, bool invert)
 {
-	int n = sz(a);
-	vector<base>roots(n / 2);
-	for (int i = 1, j = 0; i < n; i++) {
-		int bit = n >> 1;
-		for (; j >= bit; bit >>= 1) j -= bit;
-		j += bit;
-		if (i < j) swap(a[i], a[j]);
-	}
-	for (int i = 2; i <= n; i <<= 1) {
-		vector<base> w(i / 2);
-		for (int j = 0; j < i / 2; ++j) {
-			double th = 2 * acos(-1.L)*j / i * (invert ? -1 : 1);
-			w[j] = base(cos(th), sin(th));
-		}
-		for (int j = 0; j < n; j += i) {
-			for (int k = 0; k < i / 2; ++k) {
-				base u = a[j + k], v = a[j + k + i / 2] * w[k];
-				a[j + k] = u + v;
-				a[j + k + i / 2] = u - v;
-			}
-		}
-	}
-	if (invert)	for (int i = 0; i < n; i++)a[i] /= n;
+    int n = sz(a);
+    vector<base>roots(n / 2);
+    for (int i = 1, j = 0; i < n; i++) {
+        int bit = n >> 1;
+        for (; j >= bit; bit >>= 1) j -= bit;
+        j += bit;
+        if (i < j) swap(a[i], a[j]);
+    }
+    for (int i = 2; i <= n; i <<= 1) {
+        vector<base> w(i / 2);
+        for (int j = 0; j < i / 2; ++j) {
+            double th = 2 * acos(-1.L)*j / i * (invert ? -1 : 1);
+            w[j] = base(cos(th), sin(th));
+        }
+        for (int j = 0; j < n; j += i) {
+            for (int k = 0; k < i / 2; ++k) {
+                base u = a[j + k], v = a[j + k + i / 2] * w[k];
+                a[j + k] = u + v;
+                a[j + k + i / 2] = u - v;
+            }
+        }
+    }
+    if (invert) for (int i = 0; i < n; i++)a[i] /= n;
 }
 void multiply(const vector<ll>& a, const vector<ll >& b, vector<ll>& res)
 {
-	vector <base> fa(all(a)), fb(all(b));
-	ll n = 1;
-	while (n < max(sz(a), sz(b))) n <<= 1;
-	n <<= 1;
-	fa.resize(n); fb.resize(n);
-	fft(fa, false); fft(fb, false);
-	for (int i = 0; i < n; i++) fa[i] *= fb[i];
-	fft(fa, true);
-	res.resize(n);
-	for (int i = 0; i < n; i++) res[i] = ll(fa[i].real() + (fa[i].real() > 0 ? 0.5 : -0.5));
+    vector <base> fa(all(a)), fb(all(b));
+    ll n = 1;
+    while (n < max(sz(a), sz(b))) n <<= 1;
+    n <<= 1;
+    fa.resize(n); fb.resize(n);
+    fft(fa, false); fft(fb, false);
+    for (int i = 0; i < n; i++) fa[i] *= fb[i];
+    fft(fa, true);
+    res.resize(n);
+    for (int i = 0; i < n; i++) res[i] = ll(fa[i].real() + (fa[i].real() > 0 ? 0.5 : -0.5));
 }
 \end{minted}
 \subsection{NTT}
@@ -1515,11 +1516,11 @@ void solve() {
 // x 양수화 : (x + b) % b, y 양수화 : (y + a) % a
 
 tll eeu(ll a, ll b) { 
-	if (a == 0) return { b, 1, 0 };
-	else {
-		auto [g, x, y] = eeu(b % a, a);
-		return { g, y, x - b / a * y };
-	}
+    if (a == 0) return { b, 1, 0 };
+    else {
+        auto [g, x, y] = eeu(b % a, a);
+        return { g, y, x - b / a * y };
+    }
 }
 
 
@@ -1536,37 +1537,37 @@ using ull = unsigned long long;
 ull mul(ull x, ull y, ull mod){ return (ull)((__int128) x * y % mod); }
 ull ipow(ull x, ull y, ull p){
   ull ret = 1, piv = x % p;
-	while(y){
-		if(y&1) ret = mul(ret, piv, p);
-		piv = mul(piv, piv, p);
-		y >>= 1;
-	}
-	return ret;
+    while(y){
+        if(y&1) ret = mul(ret, piv, p);
+        piv = mul(piv, piv, p);
+        y >>= 1;
+    }
+    return ret;
 }
 bool miller_rabin(ull x, ull a){
-	if(x % a == 0) return 0;
-	ull d = x - 1;
-	while(1){
-		ull tmp = ipow(a, d, x);
-		if(d&1) return (tmp != 1 && tmp != x-1);
-		else if(tmp == x-1) return 0;
-		d >>= 1;
-	}
+    if(x % a == 0) return 0;
+    ull d = x - 1;
+    while(1){
+        ull tmp = ipow(a, d, x);
+        if(d&1) return (tmp != 1 && tmp != x-1);
+        else if(tmp == x-1) return 0;
+        d >>= 1;
+    }
 }
 bool isprime(ll x){ //long long range
-	for(auto &i : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}){
-		if(x == i) return 1;
-		if(x > 40 && miller_rabin(x, i)) return 0;
-	}
-	if(x <= 40) return 0;
-	return 1;
+    for(auto &i : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}){
+        if(x == i) return 1;
+        if(x > 40 && miller_rabin(x, i)) return 0;
+    }
+    if(x <= 40) return 0;
+    return 1;
 }
 bool isprime(int x){ //int range
-	for(auto &i : {2, 7, 61}){
-    		if (x == i) return 1;
-		if (miller_rabin(x, i)) return 0;
-	}
-	return 1;
+    for(auto &i : {2, 7, 61}){
+            if (x == i) return 1;
+        if (miller_rabin(x, i)) return 0;
+    }
+    return 1;
 }
 \end{minted}
 \subsection{Pollard rho}
@@ -1578,37 +1579,37 @@ ll gcd(ll a,ll b) {
     return gcd(b,a%b);
 }
 void rec(ll n, vector<ll>& v) {
-	if (n == 1) return;
-	if (n % 2 == 0) {
-		v.push_back(2);
-		rec(n / 2, v);
-		return;
-	}
-	if (isprime(n)) {
-		v.push_back(n);
-		return;
-	}
-	ll a, b, c, g = n;
-	auto f = [&](ll x) {
-        	return (c + mul(x, x, n)) % n;
-    	};
-    	do {
-        	if (g == n) {
-            		a = b = rand() % (n - 2) + 2;
-            		c = rand() % 20 + 1;
-        	}
-        	a = f(a);
-        	b = f(f(b));
-        	g = gcd(abs(a - b), n);
-    	} while (g == 1);
-	rec(g, v);
-	rec(n / g, v);
+    if (n == 1) return;
+    if (n % 2 == 0) {
+        v.push_back(2);
+        rec(n / 2, v);
+        return;
+    }
+    if (isprime(n)) {
+        v.push_back(n);
+        return;
+    }
+    ll a, b, c, g = n;
+    auto f = [&](ll x) {
+            return (c + mul(x, x, n)) % n;
+        };
+        do {
+            if (g == n) {
+                    a = b = rand() % (n - 2) + 2;
+                    c = rand() % 20 + 1;
+            }
+            a = f(a);
+            b = f(f(b));
+            g = gcd(abs(a - b), n);
+        } while (g == 1);
+    rec(g, v);
+    rec(n / g, v);
 }
 vector<ll> factorize(ll n) {
-	vector<ll> ret;
-	rec(n, ret);
-	sort(ret.begin(), ret.end());
-	return ret;
+    vector<ll> ret;
+    rec(n, ret);
+    sort(ret.begin(), ret.end());
+    return ret;
 }
 \end{minted}
 
@@ -1624,7 +1625,7 @@ vector<int> gauss_mod(vector<vector<int>> &a,int mod){
 
     int n = a.size();
     int m = a[0].size();
-	//cout<<n<<' '<<m<<endl;
+    //cout<<n<<' '<<m<<endl;
 
     vector<int> w(m, -1); // i번째 열에 있는 pivot이 몇 번째 행에 있는지 저장
     for(int c = 0, r = 0; c < m && r < n; ++c){
@@ -1667,85 +1668,85 @@ vector<int> gauss_mod(vector<vector<int>> &a,int mod){
 }
 
 void solve(){
-	cin>>n;
-	vector<vector<int>>G;
-	for(int i=1;i<=n;i++){
-		vector<int>T(n+1);
-		for(int j=0;j<=n;j++)cin>>T[j];
-		G.push_back(T);
-	}
-	vector<int>res=gauss_mod(G,101);
-	for(int i=0;i<n;i++)cout<<res[i]<<' ';
-	cout<<'\n';
+    cin>>n;
+    vector<vector<int>>G;
+    for(int i=1;i<=n;i++){
+        vector<int>T(n+1);
+        for(int j=0;j<=n;j++)cin>>T[j];
+        G.push_back(T);
+    }
+    vector<int>res=gauss_mod(G,101);
+    for(int i=0;i<n;i++)cout<<res[i]<<' ';
+    cout<<'\n';
 }
 \end{minted}
 \subsection{Matrix Multiplication}
 \begin{minted}{cpp}
 
 matrix operator *(const  matrix &a, const  matrix &b) {
-	ll size = a.size(), size2 = b[0].size(), size3 = b.size();
-	matrix res(size, vector<ll>(size2));
-	for (int i = 0; i < size; i++)
-		for (int j = 0; j < size2; j++) {
-			for (int k = 0; k < size3; k++) {
-				res[i][j] += a[i][k] * b[k][j];
-				res[i][j] %= MOD;
-			}
-			res[i][j] %= MOD;
-		}
-	return res;
+    ll size = a.size(), size2 = b[0].size(), size3 = b.size();
+    matrix res(size, vector<ll>(size2));
+    for (int i = 0; i < size; i++)
+        for (int j = 0; j < size2; j++) {
+            for (int k = 0; k < size3; k++) {
+                res[i][j] += a[i][k] * b[k][j];
+                res[i][j] %= MOD;
+            }
+            res[i][j] %= MOD;
+        }
+    return res;
 }
 matrix power(matrix a, ll n) {//a행렬을 n제곱 하겠다!
-	ll size = a.size();
-	matrix res(size, vector<ll>(size));
-	for (int i = 0; i < size; i++)res[i][i] = 1;//단위 행렬 생성
-	while (n) {
-		if (n % 2)res = res * a;
-		n /= 2;
-		a = a * a;
+    ll size = a.size();
+    matrix res(size, vector<ll>(size));
+    for (int i = 0; i < size; i++)res[i][i] = 1;//단위 행렬 생성
+    while (n) {
+        if (n % 2)res = res * a;
+        n /= 2;
+        a = a * a;
 
-	}
-	return res;
+    }
+    return res;
 }
 
 
 using poly = vector<ll>;
 poly mul(const poly& a, const poly& b) {
-	poly ret(a.size() + b.size() + 1);
-	for (int i = 0; i < a.size(); i++)
-		for (int j = 0; j < b.size(); j++)ret[i + j] = (ret[i + j] + a[i] * b[j]) % mod;
-	return ret;
+    poly ret(a.size() + b.size() + 1);
+    for (int i = 0; i < a.size(); i++)
+        for (int j = 0; j < b.size(); j++)ret[i + j] = (ret[i + j] + a[i] * b[j]) % mod;
+    return ret;
 }
 poly div(const poly& a, const poly& b) {
-	poly ret = a;
-	for (int i = ret.size() - 1; i >= b.size() - 1; i--)
-		for (int j = 0; j < b.size(); j++) {
-			ret[i + j - b.size() + 1] = ((ret[i + j - b.size() + 1] - ret[i] * b[j]) % mod + mod) % mod;
-	}
-	ret.resize(b.size() - 1);
-	return ret;
+    poly ret = a;
+    for (int i = ret.size() - 1; i >= b.size() - 1; i--)
+        for (int j = 0; j < b.size(); j++) {
+            ret[i + j - b.size() + 1] = ((ret[i + j - b.size() + 1] - ret[i] * b[j]) % mod + mod) % mod;
+    }
+    ret.resize(b.size() - 1);
+    return ret;
 }
 //키타마사법 O(k^2n^3)
 ll kitamasa(poly c, poly a, ll n) {
-	//초기항 a[i]와 상수 c[i]
-	poly result = { 1 };
-	poly xn = { 0,1 };//xn= x^1, x^2, x^n
-	poly f(c.size() + 1);
-	f.back() = 1;
-	for (int i = 0; i < c.size(); i++)f[i] = ((-c[i]) % mod + mod) % mod;
-	while (n) {
-		if (n % 2)result = div(mul(result, xn), f);
-		n /= 2;
-		xn = div(mul(xn, xn), f);
-	}
-	ll ret = 0;
-	for (int i = 0; i < a.size(); i++) {
-		ret += a[i] * result[i];
-		ret %= mod;
-		ret += mod;
-		ret %= mod;
-	}
-	return ret;
+    //초기항 a[i]와 상수 c[i]
+    poly result = { 1 };
+    poly xn = { 0,1 };//xn= x^1, x^2, x^n
+    poly f(c.size() + 1);
+    f.back() = 1;
+    for (int i = 0; i < c.size(); i++)f[i] = ((-c[i]) % mod + mod) % mod;
+    while (n) {
+        if (n % 2)result = div(mul(result, xn), f);
+        n /= 2;
+        xn = div(mul(xn, xn), f);
+    }
+    ll ret = 0;
+    for (int i = 0; i < a.size(); i++) {
+        ret += a[i] * result[i];
+        ret %= mod;
+        ret += mod;
+        ret %= mod;
+    }
+    return ret;
 }
 \end{minted}
 \newpage
@@ -1754,13 +1755,13 @@ ll kitamasa(poly c, poly a, ll n) {
 \begin{minted}{cpp}
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 struct Hashing {
-	const ll M=998244353;
-	ll P;
+    const ll M=998244353;
+    ll P;
     vector<ll> H, B;
     void Build(const string& S, ll cnt) { //cnt: number of character
-		//if cnt+1 < enough gap < sqrt(M), use f(cnt+1, sqrt(M))
-		static uniform_int_distribution<int> f(cnt+1, M - 1);
-		P=f(rng);
+        //if cnt+1 < enough gap < sqrt(M), use f(cnt+1, sqrt(M))
+        static uniform_int_distribution<int> f(cnt+1, M - 1);
+        P=f(rng);
         H.resize(S.size() + 1);
         B.resize(S.size() + 1);
         B[0] = 1;
@@ -1769,40 +1770,40 @@ struct Hashing {
     }
     ll sub(ll s, ll e) { //call with 0-based
         s++; e++;
-		ll ret = (H[e] - H[s - 1] * B[e - s + 1]) % M;
-		return ret < 0 ? ret + M : ret;
+        ll ret = (H[e] - H[s - 1] * B[e - s + 1]) % M;
+        return ret < 0 ? ret + M : ret;
     }
 };
 
 //double hashing
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 struct Hashing {
-	const ll M0=998244353, M1=1'000'000'007;
-	ll P0, P1;
+    const ll M0=998244353, M1=1'000'000'007;
+    ll P0, P1;
     vector<vector<ll>> H, B;
     void Build(const string& S, ll cnt) { //cnt: number of character
-		//if cnt+1 < enough gap < sqrt(M), use f(cnt+1, sqrt(M))
-		static uniform_int_distribution<int> f(cnt+1, M0 - 1);
-		static uniform_int_distribution<int> g(cnt+1, M1 - 1);
-		P0=f(rng), P1=g(rng);
+        //if cnt+1 < enough gap < sqrt(M), use f(cnt+1, sqrt(M))
+        static uniform_int_distribution<int> f(cnt+1, M0 - 1);
+        static uniform_int_distribution<int> g(cnt+1, M1 - 1);
+        P0=f(rng), P1=g(rng);
         H.resize(S.size() + 1,vector<ll>(2));
         B.resize(S.size() + 1,vector<ll>(2));
         B[0][0] = B[0][1]= 1;
         for (ll i = 1; i <= S.size(); i++) {
-			H[i][0] = (H[i - 1][0] * P0 + S[i - 1]) % M0;
-			H[i][1] = (H[i - 1][1] * P1 + S[i - 1]) % M1;
-		}
+            H[i][0] = (H[i - 1][0] * P0 + S[i - 1]) % M0;
+            H[i][1] = (H[i - 1][1] * P1 + S[i - 1]) % M1;
+        }
         for (ll i = 1; i <= S.size(); i++) {
-			B[i][0] = B[i-1][0] * P0 % M0;
-			B[i][1] = B[i-1][1] * P1 % M1;
-		}
+            B[i][0] = B[i-1][0] * P0 % M0;
+            B[i][1] = B[i-1][1] * P1 % M1;
+        }
     }
     pll sub(ll s, ll e) { //call with 0-based
         s++; e++;
-		ll ret0 = (H[e][0] - H[s - 1][0] * B[e - s + 1][0]) % M0;
-		ll ret1 = (H[e][1] - H[s - 1][1] * B[e - s + 1][1]) % M1;
-		if(ret0 < 0) ret0 += M0;
-		if(ret1 < 0) ret1 += M1;
+        ll ret0 = (H[e][0] - H[s - 1][0] * B[e - s + 1][0]) % M0;
+        ll ret1 = (H[e][1] - H[s - 1][1] * B[e - s + 1][1]) % M1;
+        if(ret0 < 0) ret0 += M0;
+        if(ret1 < 0) ret1 += M1;
         return {ret0, ret1};
     }
 };
@@ -1813,24 +1814,24 @@ string s, t;
 ll fail[1000010];
 vector<ll> ans;
 void kmp() {
-	getline(cin, s);
-	getline(cin, t);
-	for (ll i = 1, j = 0; i < t.size(); i++) {
-		while (j > 0 && t[i] != t[j]) j = fail[j - 1];
-		if (t[i] == t[j]) fail[i] = ++j;
-	}
-	for (ll i = 0, j = 0; i < s.size(); i++) {
-		while (j > 0 && s[i] != t[j]) j = fail[j - 1];
-		if (s[i] == t[j]) {
-			if (j == t.size() - 1) {
-				ans.push_back(i - t.size() + 2);
-				j = fail[j];
-			}
-			else j++;
-		}
-	}
-	cout << ans.size() << endl;
-	for (ll i = 0; i < ans.size(); i++) cout << ans[i] << endl;
+    getline(cin, s);
+    getline(cin, t);
+    for (ll i = 1, j = 0; i < t.size(); i++) {
+        while (j > 0 && t[i] != t[j]) j = fail[j - 1];
+        if (t[i] == t[j]) fail[i] = ++j;
+    }
+    for (ll i = 0, j = 0; i < s.size(); i++) {
+        while (j > 0 && s[i] != t[j]) j = fail[j - 1];
+        if (s[i] == t[j]) {
+            if (j == t.size() - 1) {
+                ans.push_back(i - t.size() + 2);
+                j = fail[j];
+            }
+            else j++;
+        }
+    }
+    cout << ans.size() << endl;
+    for (ll i = 0; i < ans.size(); i++) cout << ans[i] << endl;
 }
 \end{minted}
 \vspace{5mm}
@@ -2302,21 +2303,21 @@ int match(int n){
 //before call getcover function, you have to call match function first
 bool chk[MAXN + MAXM];
 void rdfs(int x, int n){
-	if(chk[x]) return;
-	chk[x] = 1;
-	for(auto &i : gph[x]){
-		chk[i + n] = 1;
-		rdfs(r[i], n);
-	}
+    if(chk[x]) return;
+    chk[x] = 1;
+    for(auto &i : gph[x]){
+        chk[i + n] = 1;
+        rdfs(r[i], n);
+    }
 }
 vector<int> getcover(int n, int m){
-	match(n);
-	memset(chk, 0, sizeof(chk));
-	for(int i=1; i<=n; i++) if(l[i] == -1) rdfs(i, n);
-	vector<int> v;
-	for(int i=1; i<=n; i++) if(!chk[i]) v.push_back(i);    //A
-	for(int i=n+1; i<=n+m; i++) if(chk[i]) v.push_back(i); //B
-	return v;
+    match(n);
+    memset(chk, 0, sizeof(chk));
+    for(int i=1; i<=n; i++) if(l[i] == -1) rdfs(i, n);
+    vector<int> v;
+    for(int i=1; i<=n; i++) if(!chk[i]) v.push_back(i);    //A
+    for(int i=n+1; i<=n+m; i++) if(chk[i]) v.push_back(i); //B
+    return v;
 }
 \end{minted}
 
@@ -2328,8 +2329,8 @@ vector<edge> adj[N];
 ll dist[N], p[N], pe[N];
 bool inQ[N];
 void add_edge(ll u, ll v, ll c, ll cost) {
-	adj[u].push_back({ v, c, (ll)adj[v].size(), cost });
-	adj[v].push_back({ u, 0, (ll)adj[u].size() - 1, -cost });
+    adj[u].push_back({ v, c, (ll)adj[v].size(), cost });
+    adj[v].push_back({ u, 0, (ll)adj[u].size() - 1, -cost });
 }
 bool spfa(ll s, ll t) {
     fill(dist, dist + N, INF);
@@ -2379,19 +2380,19 @@ pll mcmf(ll s, ll t) {
 //if cost is monge C(a,c)+C(b,d)<=C(a,d)+C(b,c), a<=b<=c<=d
 //or if monoticity opt(i,j)<=opt(i,j+1)
 void f(int i,int s, int e, int optl, int optr) {
-	//want to get dp[i][s~e]
-	if(s>e) return;
-	int m=s+e>>1;
-	ll ret=1e18, opt=optl;
-	for(ll j=optl;j<=optr;j++) {
-		ll now=dp[i-1][j]+(a[m]-a[j])*(m-j);
-		if(now<ret) {
-			ret=now;
-			opt=j;
-		}
-	}
-	dp[i][m]=ret;
-	f(i,s,m-1,optl,opt), f(i,m+1,e,opt,optr);
+    //want to get dp[i][s~e]
+    if(s>e) return;
+    int m=s+e>>1;
+    ll ret=1e18, opt=optl;
+    for(ll j=optl;j<=optr;j++) {
+        ll now=dp[i-1][j]+(a[m]-a[j])*(m-j);
+        if(now<ret) {
+            ret=now;
+            opt=j;
+        }
+    }
+    dp[i][m]=ret;
+    f(i,s,m-1,optl,opt), f(i,m+1,e,opt,optr);
 }
 \end{minted}
 \vspace{5mm}
@@ -2469,76 +2470,123 @@ shuffle(all(v), rng); // shuffle randomly!
 cout<<rng();     //random [0, 2^32-1]
 int x=rng()%100; //[0,99]
 \end{minted}
-\subsection{mo's algorithm (hilbert)}
+\subsection{mo's algorithm}
 \begin{minted}{cpp}
-// 정렬 기준을 HilOrd로..
-// 단, HilOrd로 하면 구간 넓히고 줄일 때, add/del 연산 순서가 중요하다.
-// add -> del 순서를 지켜주자.
-ll HilOrd(int x, int y, int k) {
-    // long long 써야 함.
-    // k는 n < 2^k인 첫 k로
-    // HilOrd 오름차순 기준으로 쿼리 처리
-    // O(QB + NN/B)라서 B = N/sqrt(Q)로 잡으면
-    // O(Nsqrt(Q)) 이고, Mo's의 (N+Q)sqrt(N)보다 항상 빠르다.
-    ll c, d = 0, p = 0, r = 0, v;
-    for (; k >= 0; k--) {
-        v = 0;
-        if (y - 1 >> k & 1)v = 3;
-        if (x - 1 >> k & 1)v ^= 1;
-        c = (v + r ^ d) % 4;
-        p += c << 2 * k;
-        if (c == d)r += 3;
-        if (c + d == 3)r++;
-        if (c == 0 || c == 3)d ^= 3;
-    }
-    return p + 1;
-}
+/*
+Offline range query template.
 
-#include <bits/stdc++.h>
-using namespace std;
-typedef long long ll;
-int sqrtN;
-struct Query{
-	int idx, s, e;
-	bool operator < (Query &x){
-		if(s/sqrtN != x.s/sqrtN) return s/sqrtN < x.s/sqrtN;
-		return e < x.e;
-	}
+Ordinary Mo (default):
+- Sort by l / BLOCK, and reverse r-order on odd blocks.
+- Usually the first version to try: simple and robust.
+- If Q is similar to N, BLOCK ~= sqrt(N) is standard.
+- Only add / del / get_answer are problem-specific.
+
+Hilbert Mo below uses the SAME add/del loop.
+The only essential difference is the query ordering.
+*/
+struct Query {
+    int idx, l, r;
 };
-vector<Query> query;
-vector<int> v;
-ll res = 0;
-ll ans[101010];
-int main(){
-	ios_base::sync_with_stdio(0); cin.tie(0);
-	int n, q; cin >> n >> q; sqrtN = sqrt(n);
-	v.resize(n+1);
-	for(int i=1; i<=n; i++){
-		cin >> v[i];
-	}
-	for(int i=0; i<q; i++){
-		int s, e; cin >> s >> e;
-		query.push_back({i, s, e});
-	}
-	sort(query.begin(), query.end());
-	int s = query[0].s, e = query[0].e;
-	for(int i=s; i<=e; i++){
-		res += v[i];
-	}
-	ans[query[0].idx] = res;
-	for(int i=1; i<q; i++){
-        // 삽입, 삭제 순서 중요한 문제는 주의 필요. (런타임에러)
-		while(s < query[i].s) res -= v[s++];
-		while(s > query[i].s) res += v[--s];
-		while(e < query[i].e) res += v[++e];
-		while(e > query[i].e) res -= v[e--];
-		ans[query[i].idx] = res;
-	}
-	for(int i=0; i<q; i++) cout << ans[i] << "\n";
+
+int BLOCK;
+
+bool mo_cmp(const Query& a, const Query& b) {
+    int ab = a.l / BLOCK;
+    int bb = b.l / BLOCK;
+    if (ab != bb) return ab < bb;
+
+    // odd-even ordering: reduces movement of R
+    if (ab & 1) return a.r > b.r;
+    return a.r < b.r;
 }
 
+// Example usage:
+// BLOCK = max(1, (int)sqrt(N));
+// sort(qs.begin(), qs.end(), mo_cmp);
+//
+// int L = 0, R = -1; // current interval is empty, 0-indexed
+// for (const auto& q : qs) {
+//     while (L > q.l) add(--L);
+//     while (R < q.r) add(++R);
+//     while (L < q.l) del(L++);
+//     while (R > q.r) del(R--);
+//     ans[q.idx] = get_answer();
+// }
+//
+// Replace add, del, get_answer for each problem.
+// If left/right insertion are different operations, use
+// add_left / add_right / del_left / del_right separately.
+\end{minted}
 
+\subsection{mo's algorithm (hilbert order)}
+\begin{minted}{cpp}
+/*
+Hilbert-order Mo:
+- Consider each query as a point (l, r).
+- Sort queries by Hilbert order instead of l/B and r.
+- The query-processing while-loops are IDENTICAL to ordinary Mo.
+- Often improves locality / constants when add/del is expensive.
+- It is NOT asymptotically guaranteed to be faster than ordinary Mo.
+- Hilbert ordering does NOT require a special add-before-del rule.
 
+Practical choice:
+1) Try ordinary Mo first.
+2) If it is close to the time limit, or add/del is expensive,
+   try Hilbert ordering.
+*/
+using ll = long long;
+
+ll hilbert_order(int x, int y, int pw, int rot = 0) {
+    if (pw == 0) return 0;
+
+    int h = 1 << (pw - 1);
+    int seg;
+    if (x < h) seg = (y < h ? 0 : 3);
+    else       seg = (y < h ? 1 : 2);
+
+    seg = (seg + rot) & 3;
+    static const int rotate_delta[4] = {3, 0, 0, 1};
+
+    int nx = x & (h - 1);
+    int ny = y & (h - 1);
+    int nrot = (rot + rotate_delta[seg]) & 3;
+
+    ll sub_size = 1LL << (2 * pw - 2);
+    ll ord = 1LL * seg * sub_size;
+    ll sub = hilbert_order(nx, ny, pw - 1, nrot);
+
+    if (seg == 1 || seg == 2) ord += sub;
+    else ord += sub_size - sub - 1;
+    return ord;
+}
+
+struct HilbertQuery {
+    int idx, l, r;
+    ll ord;
+
+    bool operator<(const HilbertQuery& q) const {
+        return ord < q.ord;
+    }
+};
+
+// Example usage:
+// int pw = 0;
+// while ((1LL << pw) <= N) ++pw; // 2^pw > max coordinate
+//
+// for (auto& q : qs)
+//     q.ord = hilbert_order(q.l, q.r, pw);
+// sort(qs.begin(), qs.end());
+//
+// int L = 0, R = -1;
+// for (const auto& q : qs) {
+//     while (L > q.l) add(--L);
+//     while (R < q.r) add(++R);
+//     while (L < q.l) del(L++);
+//     while (R > q.r) del(R--);
+//     ans[q.idx] = get_answer();
+// }
+//
+// Ordinary Mo vs Hilbert Mo = QUERY ORDERING only.
 \end{minted}
 \subsection{degree sequence}
 \begin{minted}{cpp}
